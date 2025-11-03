@@ -1,5 +1,7 @@
 from client import avg, count, count0, _pretty_print
 from dp import dp_histogram
+from statistics import median, mode
+
 
 # This function should expose the true value of some aggregate/query
 # by abusing the fact that you can make many such queries.
@@ -29,7 +31,28 @@ def expose(query_func):
   for r in range(0, rows):
     # TODO: compute the actual value of row r, given all the noised values from
     # making many queries.
-    value = "?"
+    # Collect all noisy results for this row
+    noisy_values = [float(many_results[i][r][-1]) for i in range(num_iterations)]
+
+    # Mean:
+    # - Works reasonably well if negative values are allowed, because the Laplace noise averages out.
+    # - Does not work well for counts when negatives are clamped to zero, as zero values bias the mean downward.
+    # value = sum(noisy_values) / num_iterations
+
+    # Median:
+    # - Works well when negative values are allowed.
+    # - Works better than mean for counts when negatives are clamped, because it is less sensitive to extreme noise.
+    value = median(noisy_values)
+
+    # Mode:
+    # - Can work, but is not very accurate because the noise is continuous, so exact repeats are rare.
+    # - Performs poorly with non-negative clamping, since many noisy values collapse to 0, distorting the most frequent value.
+    # value = mode(noisy_values)
+
+
+    # Round to nearest integer, since histograms are counts
+    value = int(round(value))   
+
     
     # Append value and attached label to exposed result.
     labels = tuple(many_results[0][r][:-1])
@@ -51,17 +74,17 @@ if __name__ == "__main__":
   _pretty_print(headers, result)  
 
   # Expose the average age per programming level.
-  '''
+
   print("Exposing average:")
   headers, result = expose(lambda: avg(["programming"], "age", True))
   _pretty_print(headers, result)
   print("")
-  '''
+
   
   # Expose the count of people per programming level.
-  '''
+
   print("Exposing count:")
   headers, result = expose(lambda: count0(["programming"], True))
   _pretty_print(headers, result)
   print("")
-  '''
+

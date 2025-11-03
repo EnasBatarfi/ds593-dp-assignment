@@ -1,19 +1,20 @@
 from client import count, _pretty_print
 from matplotlib import pyplot
-
+from numpy import random
 import sys
 
 # Return a random sample from laplace with mean/loc = mu and scale/spread b.
 def laplace(mu, b):
   # TODO: implement laplace sampling or use numpy's laplace.
-  return "?"
+  laplace_sample = random.laplace(mu, b)
+  return laplace_sample
 
 # Return a noised histogram that is epsilon-dp.
 def dp_histogram(epsilon):
   # TODO: Find out the parameters for the noise distribution.
-  sensitivity = "?"
-  mu = "?"
-  b = "?"
+  sensitivity = 1
+  mu = 0
+  b = sensitivity / epsilon
   
   # Get the exact histogram without noise.
   headers, rows = count(["age", "music"], False)
@@ -23,7 +24,11 @@ def dp_histogram(epsilon):
   for (age, music, value) in rows:
     # TODO: compute the noised value.
     # TODO: round the noised_value to the closest integer.
-    noised_value = "?"
+    noised_value= value + laplace(mu, b)
+    noised_value = round(noised_value)
+    # Filter the negative values to zero.
+    if noised_value < 0:
+      noised_value = 0
 
     # Append the noised value and associated group by labels.
     noised_rows.append((age, music, noised_value))  
@@ -34,6 +39,7 @@ def dp_histogram(epsilon):
 # (age 0 and Hip Hop).
 def plot(epsilon):
   ITERATIONS = 150
+  values = []
 
   # We will store the frequency for each observed value in d.
   d = {}
@@ -42,6 +48,7 @@ def plot(epsilon):
     # Get the value of the first row (age 0 and hip hop).
     value = round(rows[0][-1])
     d[value] = d.get(value, 0) + 1
+    values.append(value)
 
   # Turn the frequency dictionary into a plottable sequence.
   vmin, vmax = min(d.keys()) - 3, max(d.keys()) + 3
@@ -53,6 +60,8 @@ def plot(epsilon):
   pyplot.xlabel("Count value")
   pyplot.ylabel("Frequency")
   pyplot.savefig('dp-plot.png')
+  return values
+
 
 # Run this for epsilon 0.5
 if __name__ == "__main__":
@@ -65,8 +74,6 @@ if __name__ == "__main__":
   _pretty_print(headers, rows)
 
   # Plotting code.
-  '''
-  print("Plotting, this may take a minute ...")
-  plot(epsilon)
-  print("Plot saved at 'dp-plot.png'")
-  '''
+  # print("Plotting, this may take a minute ...")
+  # values=plot(epsilon)
+  # print("Plot saved at 'dp-plot.png'")
