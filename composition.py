@@ -1,6 +1,8 @@
 from client import avg, count, count0, _pretty_print
 from dp import dp_histogram
-from statistics import median, mode
+from statistics import median, mode, mean
+
+
 
 
 # This function should expose the true value of some aggregate/query
@@ -10,8 +12,8 @@ from statistics import median, mode
 def expose(query_func):
   headers, many_results = None, []
   # Make many queries and save their results.
-  print("Making 200 queries with noise. This may take a minute...")
-  for i in range(200):
+  print("Making 2000 queries with noise. This may take a minute...")
+  for i in range(2000):
     headers, results = query_func()
     many_results.append(results)
 
@@ -34,29 +36,28 @@ def expose(query_func):
     # Collect all noisy results for this row
     noisy_values = [float(many_results[i][r][-1]) for i in range(num_iterations)]
 
+
     # Mean:
-    # - Works reasonably well if negative values are allowed, because the Laplace noise averages out.
-    # - Does not work well for counts when negatives are clamped to zero, as zero values bias the mean downward.
-    # value = sum(noisy_values) / num_iterations
+    # - Works reasonably well if negative values are allowed, because the Laplace noise averages out
+    # - Does not work well for counts when negatives are clamped to zero, as zero values bias the mean downward
+    # - IDK why but the mean seems to perform worse than the median in my tests even when negatives are allowed
+    # - may be it is more affected by extreme values from the noise distribution than the median so i just used median
+    # - Also the mean values between the runs aren't very close to each other 
+    # value = mean(noisy_values)
 
     # Median:
-    # - Works well when negative values are allowed.
-    # - Works better than mean for counts when negatives are clamped, because it is less sensitive to extreme noise.
+    # - Works well when negative values are allowed
+    # - Works better than mean for counts when negatives are clamped, because it is less sensitive to extreme noise
     value = median(noisy_values)
-
-    # Mode:
-    # - Can work, but is not very accurate because the noise is continuous, so exact repeats are rare.
-    # - Performs poorly with non-negative clamping, since many noisy values collapse to 0, distorting the most frequent value.
-    # value = mode(noisy_values)
 
 
     # Round to nearest integer, since histograms are counts
-    value = int(round(value))   
+    value_rounded = int(round(value))
 
     
-    # Append value and attached label to exposed result.
+    # Append value and attached label to exposed result
     labels = tuple(many_results[0][r][:-1])
-    exposed_result.append(labels + (value,))    
+    exposed_result.append(labels + (value_rounded,))
 
   return headers, exposed_result
 

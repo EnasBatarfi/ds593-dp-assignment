@@ -26,9 +26,11 @@ def dp_histogram(epsilon):
     # TODO: round the noised_value to the closest integer.
     noised_value= value + laplace(mu, b)
     noised_value = round(noised_value)
-    # Filter the negative values to zero.
-    if noised_value < 0:
-      noised_value = 0
+    # Filter out negative counts.
+    # However the plot will be less informative as the most likely value will be 0
+    # So we will comment this part for the graphing purpose
+    # if noised_value < 0:
+    #   noised_value = 0
 
     # Append the noised value and associated group by labels.
     noised_rows.append((age, music, noised_value))  
@@ -59,7 +61,9 @@ def plot(epsilon):
   pyplot.plot(xs, ys, 'o-', ds='steps-mid')
   pyplot.xlabel("Count value")
   pyplot.ylabel("Frequency")
+  pyplot.title(f"Histogram of DP counts of the First Row (epsilon={epsilon})")
   pyplot.savefig('dp-plot.png')
+  pyplot.close()
   return values
 
 
@@ -74,6 +78,6 @@ if __name__ == "__main__":
   _pretty_print(headers, rows)
 
   # Plotting code.
-  # print("Plotting, this may take a minute ...")
-  # values=plot(epsilon)
-  # print("Plot saved at 'dp-plot.png'")
+  print("Plotting, this may take a minute ...")
+  values=plot(epsilon)
+  print("Plot saved at 'dp-plot.png'")
