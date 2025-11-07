@@ -17,7 +17,7 @@ def expose(query_func):
   for i in range(2000):
     headers, results = query_func()
     many_results.append(results)
-    time.sleep(0.03)  
+    time.sleep(0.05)  
   # Expose the value of the query.
   #
   # many_results is structured as follows:

@@ -1,6 +1,7 @@
 from client import avg, count, count0, _pretty_print
 from dp import dp_histogram
 from statistics import median, mode, mean
+import time
 
 
 
@@ -16,7 +17,7 @@ def expose(query_func):
   for i in range(2000):
     headers, results = query_func()
     many_results.append(results)
-
+    time.sleep(0.05)  
   # Expose the value of the query.
   #
   # many_results is structured as follows:
