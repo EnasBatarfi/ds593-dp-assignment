@@ -62,7 +62,7 @@ def plot(epsilon):
   pyplot.xlabel("Count value")
   pyplot.ylabel("Frequency")
   pyplot.title(f"Histogram of DP counts of the First Row (epsilon={epsilon})")
-  pyplot.savefig('dp-plot.png')
+  pyplot.savefig(f'dp-plot-{epsilon}.png')
   pyplot.close()
   return values
 
